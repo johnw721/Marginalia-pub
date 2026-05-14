@@ -117,11 +117,7 @@ The test helper (`tests/helpers/load-script.mjs`) evaluates each browser IIFE in
 
 ---
 
-## Chrome Web Store
-
-> **Coming soon** — the listing link will appear here once the extension is published.
->
-> In the meantime, load the extension manually using the Developer mode instructions above.
+## API key
 
 Marginalia requires your own **Anthropic API key** to function. Keys are free to create at [console.anthropic.com](https://console.anthropic.com/) (free trial credits included). See [**API_KEY_SETUP.md**](API_KEY_SETUP.md) for a step-by-step guide including cost estimates and troubleshooting.
 
@@ -129,7 +125,7 @@ Marginalia requires your own **Anthropic API key** to function. Keys are free to
 
 ## Privacy
 
-No tracking. No analytics. No data sent anywhere except Anthropic's API — and only when you start a conversation. See [**PRIVACY_POLICY.md**](PRIVACY_POLICY.md) for full details.
+No tracking. No analytics. No data sent anywhere except Anthropic's API — and only when you start a conversation. Your API key and reading data stay in `chrome.storage.local` on your device.
 
 ---
 
@@ -139,7 +135,6 @@ No tracking. No analytics. No data sent anywhere except Anthropic's API — and 
 - [**BEHAVIOR_SYSTEM.md**](BEHAVIOR_SYSTEM.md) — Mitigate / Embrace / Erase strategies, classification thresholds, mode override, buildUserMessage tag format
 - [**PROMPTS.md**](PROMPTS.md) — the 9 system prompts, three-part response structure, context block format
 - [**API_KEY_SETUP.md**](API_KEY_SETUP.md) — how to get an Anthropic API key, enter it, understand costs, and use the optional demo proxy
-- [**STORE_LISTING.md**](STORE_LISTING.md) — Chrome Web Store copy, screenshot checklist, promotional image briefs, submission checklist
 
 ---
 

@@ -28,8 +28,7 @@ const ANTHROPIC_VERSION  = "2023-06-01";
 // Model string. Use the plain alias for now; to pin to a specific snapshot,
 // find the exact dated ID in your Anthropic Console under
 // console.anthropic.com/settings/limits → "Model" column, then replace this
-// with e.g. "claude-sonnet-4-5-20251022". See the upgrade checklist in
-// STORE_LISTING.md before changing.
+// with e.g. "claude-sonnet-4-5-20251022".
 const CLAUDE_MODEL = "claude-sonnet-4-5";
 const MAX_TOKENS   = 300;
 
