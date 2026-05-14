@@ -1,0 +1,331 @@
+/* ============================================================
+   onboarding.css — Marginalia setup screen
+   ============================================================ */
+
+/* ── Reset / Base ── */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg:           #0f0f12;
+  --surface:      #18181d;
+  --surface-hover:#1e1e25;
+  --border:       #2a2a35;
+  --border-sel:   #6c63ff;
+  --accent:       #6c63ff;
+  --accent-dim:   rgba(108, 99, 255, 0.12);
+  --text-pri:     #e8e8ef;
+  --text-sec:     #888898;
+  --text-hint:    #555568;
+  --btn-disabled: #2a2a35;
+  --btn-dis-text: #555568;
+  --radius-sm:    8px;
+  --radius-md:    12px;
+  --radius-lg:    16px;
+  --transition:   160ms ease;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-pri);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Page layout ── */
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 64px 24px 80px;
+  gap: 0;
+}
+
+/* ── Header ── */
+
+.header {
+  text-align: center;
+  margin-bottom: 56px;
+  max-width: 480px;
+  width: 100%;
+}
+
+.logo-mark {
+  font-size: 32px;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 16px;
+  display: block;
+  letter-spacing: -1px;
+}
+
+.header__title {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  color: var(--text-pri);
+  margin-bottom: 8px;
+}
+
+.header__sub {
+  font-size: 14px;
+  color: var(--text-sec);
+}
+
+/* ── Question sections ── */
+
+.question {
+  width: 100%;
+  max-width: 520px;
+  margin-bottom: 40px;
+}
+
+.question--hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+  transition: opacity 280ms ease, transform 280ms ease;
+  /* stays in layout flow (not display:none) so transition is visible */
+}
+
+.question--visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.question__label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-pri);
+  margin-bottom: 16px;
+  letter-spacing: -0.1px;
+}
+
+.question__number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent-dim);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ── Option cards ── */
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+  transition:
+    background var(--transition),
+    border-color var(--transition),
+    transform var(--transition);
+}
+
+.option:hover:not([aria-checked="true"]) {
+  background: var(--surface-hover);
+  border-color: #3a3a4a;
+}
+
+.option:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.option[aria-checked="true"] {
+  background: var(--accent-dim);
+  border-color: var(--border-sel);
+}
+
+.option:active {
+  transform: scale(0.99);
+}
+
+.option__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-pri);
+  line-height: 1.3;
+}
+
+.option[aria-checked="true"] .option__title {
+  color: #a89fff;
+}
+
+.option__desc {
+  font-size: 12.5px;
+  color: var(--text-sec);
+  line-height: 1.4;
+}
+
+/* ── Footer ── */
+
+.footer {
+  width: 100%;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.confirm-btn {
+  width: 100%;
+  padding: 13px 24px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.1px;
+  transition: opacity var(--transition), transform var(--transition);
+}
+
+.confirm-btn:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.confirm-btn:active:not(:disabled) {
+  transform: scale(0.99);
+}
+
+.confirm-btn:disabled {
+  background: var(--btn-disabled);
+  color: var(--btn-dis-text);
+  cursor: not-allowed;
+}
+
+.confirm-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.footer__hint {
+  font-size: 12px;
+  color: var(--text-hint);
+  text-align: center;
+  min-height: 18px; /* prevent layout shift when text changes */
+}
+
+/* ── Q3: API key input ── */
+
+.question__sub {
+  font-size: 13px;
+  color: var(--text-sec);
+  margin-top: -8px;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.key-field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.key-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0 10px 0 14px;
+  transition: border-color var(--transition);
+}
+
+.key-input-wrap:focus-within {
+  border-color: var(--border-sel);
+}
+
+.key-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-pri);
+  font-size: 13.5px;
+  font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+  letter-spacing: 0.02em;
+  padding: 12px 0;
+  min-width: 0;
+}
+
+.key-input::placeholder {
+  color: var(--text-hint);
+  font-family: inherit;
+  letter-spacing: 0;
+}
+
+.key-toggle {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  color: var(--text-hint);
+  border-radius: 6px;
+  line-height: 0;
+  transition: color var(--transition);
+}
+
+.key-toggle:hover {
+  color: var(--text-sec);
+}
+
+.key-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.key-link {
+  font-size: 12.5px;
+  color: var(--accent);
+  text-decoration: none;
+  opacity: 0.85;
+  transition: opacity var(--transition);
+}
+
+.key-link:hover {
+  opacity: 1;
+  text-decoration: underline;
+}

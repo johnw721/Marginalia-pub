@@ -1,0 +1,49 @@
+# cloudflare-worker/wrangler.toml
+#
+# Cloudflare Worker deployment config for the Marginalia proxy.
+#
+# Setup steps:
+#   1. Install Wrangler:  npm install -g wrangler
+#   2. Authenticate:      wrangler login
+#   3. Create KV namespace:
+#        wrangler kv:namespace create RATE_LIMIT
+#      Copy the printed id into the [[kv_namespaces]] block below.
+#   4. Set the Anthropic secret:
+#        wrangler secret put ANTHROPIC_API_KEY
+#      Paste your Anthropic API key when prompted.
+#   5. Deploy:            wrangler deploy
+#
+# After deploy, copy your worker URL (e.g. https://marginalia-proxy.YOUR_NAME.workers.dev)
+# into PROXY_ENDPOINT in background.js.
+
+name               = "marginalia-proxy"
+main               = "worker.js"
+compatibility_date = "2024-09-23"
+
+[[kv_namespaces]]
+binding = "RATE_LIMIT"
+id      = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+
+# Secrets are set via `wrangler secret put` — never hardcode them here.
+# Required secret:  ANTHROPIC_API_KEY
+
+# ── KV daily quota reset ──────────────────────────────────────────────────────
+#
+# DEFAULT (no cron needed):
+#   The counter key "quota:YYYY-MM-DD" resets automatically because each new
+#   calendar day creates a brand-new key starting at zero.  The old key expires
+#   after 25 h via expirationTtl in the put() call in worker.js.  Nothing below
+#   is required for this to work.
+#
+# OPTIONAL explicit midnight reset (cron approach):
+#   Uncomment the [triggers] block below to add a Workers cron trigger.
+#   This fires the `scheduled()` handler in worker.js at 00:00 UTC every day,
+#   pre-seeding the new day's key to 0.  Use this when you want:
+#     • A guaranteed, observable reset time (not whenever the first request arrives)
+#     • A hook to log or alert on the previous day's usage before it expires
+#
+#   After uncommenting: also uncomment the `scheduled()` handler in worker.js,
+#   then redeploy with `wrangler deploy`.
+#
+# [triggers]
+# crons = ["0 0 * * *"]   # run at 00:00 UTC every day

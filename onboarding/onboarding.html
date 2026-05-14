@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Marginalia — Setup</title>
+  <link rel="stylesheet" href="onboarding.css" />
+</head>
+<body>
+
+  <div class="page">
+
+    <header class="header">
+      <div class="logo-mark" aria-hidden="true">◎</div>
+      <h1 class="header__title">Marginalia</h1>
+      <p class="header__sub">A few quick questions to configure your reading agent.</p>
+    </header>
+
+    <!-- ── Q1 ── -->
+    <section class="question" id="q1" aria-labelledby="q1-label">
+      <h2 class="question__label" id="q1-label">
+        <span class="question__number">1</span>
+        Where do you primarily read?
+      </h2>
+
+      <div class="options" role="radiogroup" aria-labelledby="q1-label" data-question="q1">
+
+        <button class="option" data-value="readability" role="radio" aria-checked="false" tabindex="0">
+          <span class="option__title">Articles &amp; blog posts</span>
+          <span class="option__desc">Extracts the main article text, strips ads and nav chrome.</span>
+        </button>
+
+        <button class="option" data-value="viewport" role="radio" aria-checked="false" tabindex="0">
+          <span class="option__title">What's visible on screen</span>
+          <span class="option__desc">Captures only what's in the viewport at the moment you read.</span>
+        </button>
+
+        <button class="option" data-value="structured" role="radio" aria-checked="false" tabindex="0">
+          <span class="option__title">Docs, papers &amp; references</span>
+          <span class="option__desc">Preserves headings, code blocks, and structured formatting.</span>
+        </button>
+
+      </div>
+    </section>
+
+    <!-- ── Q2 (hidden until Q1 answered) ── -->
+    <section class="question question--hidden" id="q2" aria-labelledby="q2-label" aria-hidden="true">
+      <h2 class="question__label" id="q2-label">
+        <span class="question__number">2</span>
+        How would you describe your reading style?
+      </h2>
+
+      <div class="options" role="radiogroup" aria-labelledby="q2-label" data-question="q2">
+
+        <button class="option" data-value="mitigate" role="radio" aria-checked="false" tabindex="-1">
+          <span class="option__title">I notice when I skim</span>
+          <span class="option__desc">Flags shallow reads and nudges you toward deeper engagement.</span>
+        </button>
+
+        <button class="option" data-value="embrace" role="radio" aria-checked="false" tabindex="-1">
+          <span class="option__title">I skim intentionally</span>
+          <span class="option__desc">Respects your pace — surfaces the essentials without judgment.</span>
+        </button>
+
+        <button class="option" data-value="erase" role="radio" aria-checked="false" tabindex="-1">
+          <span class="option__title">I prefer a clean slate</span>
+          <span class="option__desc">Ignores reading signals entirely; responds only to the content.</span>
+        </button>
+
+      </div>
+    </section>
+
+    <!-- ── Q3 (hidden until Q2 answered) ── -->
+    <section class="question question--hidden" id="q3" aria-labelledby="q3-label" aria-hidden="true">
+      <h2 class="question__label" id="q3-label">
+        <span class="question__number">3</span>
+        Add your Anthropic API key
+      </h2>
+      <p class="question__sub">Required to talk to Claude. You can skip this and add it later in Settings.</p>
+
+      <div class="key-field">
+        <div class="key-input-wrap">
+          <input
+            type="password"
+            id="api-key-input"
+            class="key-input"
+            placeholder="sk-ant-api03-…"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button type="button" class="key-toggle" id="key-toggle" aria-label="Show key" aria-pressed="false">
+            <!-- Eye icon -->
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5Z"
+                stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+              <circle cx="8" cy="8" r="2"
+                stroke="currentColor" stroke-width="1.4"/>
+            </svg>
+          </button>
+        </div>
+        <a class="key-link" href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">
+          Get a key at console.anthropic.com →
+        </a>
+      </div>
+    </section>
+
+    <!-- ── Confirm ── -->
+    <footer class="footer">
+      <button class="confirm-btn" id="confirm-btn" disabled aria-disabled="true">
+        Finish setup
+      </button>
+      <p class="footer__hint" id="footer-hint" aria-live="polite">Answer both questions to continue.</p>
+    </footer>
+
+  </div>
+
+  <script src="onboarding.js"></script>
+</body>
+</html>

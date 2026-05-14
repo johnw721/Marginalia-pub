@@ -1,0 +1,71 @@
+{
+  "manifest_version": 3,
+  "name": "Marginalia",
+  "version": "1.0.0",
+  "description": "AI reading partner that observes how you read, then opens a conversation with an observation, an insight, and one question.",
+
+  "permissions": [
+    "sidePanel",
+    "storage",
+    "activeTab",
+    "contextMenus"
+  ],
+
+  "host_permissions": [
+    "https://api.anthropic.com/*"
+  ],
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "vendor/Readability.js",
+        "lib/extraction/quality.js",
+        "lib/extraction/strategies/viewport.js",
+        "lib/extraction/strategies/structured.js",
+        "lib/extraction/strategies/readability.js",
+        "lib/extraction/index.js",
+        "lib/behavior/strategies/embrace.js",
+        "lib/behavior/strategies/erase.js",
+        "lib/behavior/strategies/mitigate.js",
+        "lib/behavior/index.js",
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "action": {
+    "default_title": "Marginalia",
+    "default_icon": {
+      "16":  "icons/icon16.png",
+      "48":  "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+
+  "side_panel": {
+    "default_path": "sidebar/sidebar.html"
+  },
+
+  "icons": {
+    "16":  "icons/icon16.png",
+    "48":  "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "onboarding/onboarding.html",
+        "onboarding/onboarding.css",
+        "onboarding/onboarding.js"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

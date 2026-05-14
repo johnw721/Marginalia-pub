@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Marginalia</title>
+  <link rel="stylesheet" href="sidebar.css" />
+</head>
+<body>
+  <div class="rc-shell">
+
+    <!-- ── Header ──────────────────────────────────────────────────── -->
+    <header class="rc-header">
+      <span class="rc-wordmark" aria-hidden="true">M</span>
+
+      <div class="rc-header-meta">
+        <h1 class="rc-title">Marginalia</h1>
+        <div class="rc-header-row">
+          <span class="rc-strategy-badge" id="strategyBadge" aria-label="Current persona">—</span>
+          <!-- ⓘ persona info button — reveals name + description of the active 3×3 cell -->
+          <button
+            class="rc-persona-info"
+            id="personaInfoBtn"
+            aria-label="About this persona"
+            aria-expanded="false"
+            aria-controls="personaTooltip"
+            title="What does this persona do?"
+          >ⓘ</button>
+          <select
+            class="rc-mode-select"
+            id="modeSelect"
+            aria-label="Behavior mode override"
+            title="Override reading mode for this session"
+          >
+            <option value="auto">Mode: Auto</option>
+            <option value="deep">⚡ Deep</option>
+            <option value="skim">⚡ Skim</option>
+          </select>
+        </div>
+        <!-- Persona tooltip — slides in below the badge row when ⓘ is clicked -->
+        <div class="rc-persona-tooltip" id="personaTooltip" role="tooltip" aria-live="polite"></div>
+      </div>
+
+      <!-- Copy conversation button -->
+      <button
+        class="rc-settings-btn"
+        id="copyConvBtn"
+        title="Copy conversation as Markdown"
+        aria-label="Copy conversation as Markdown"
+      >
+        <!-- Clipboard icon -->
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <rect x="4.5" y="3.5" width="8" height="10" rx="1"
+            stroke="currentColor" stroke-width="1.4"/>
+          <path d="M6 3.5V3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v.5"
+            stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <!-- Highlights library button -->
+      <button
+        class="rc-settings-btn"
+        id="highlightsToggle"
+        title="Saved highlights"
+        aria-label="Saved highlights"
+        aria-expanded="false"
+        aria-controls="highlightsPanel"
+      >
+        <!-- Bookmark icon -->
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M4 2.5h8v11l-4-2.8-4 2.8V2.5Z"
+            stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <button
+        class="rc-settings-btn"
+        id="settingsToggle"
+        title="Settings"
+        aria-label="Toggle settings"
+        aria-expanded="false"
+        aria-controls="settingsPanel"
+      >
+        <!-- Gear icon -->
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M8 10.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"
+            stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M13.3 6.6 12.4 5a.6.6 0 0 0-.7-.3l-.9.4a4.1 4.1 0 0 0-.9-.5l-.2-1a.6.6 0 0 0-.6-.5H6.9a.6.6 0 0 0-.6.5l-.2 1a4 4 0 0 0-.9.5l-.9-.4a.6.6 0 0 0-.7.3L2.7 6.6a.6.6 0 0 0 .1.8l.8.6v1l-.8.6a.6.6 0 0 0-.1.8l.9 1.6c.2.3.5.4.7.3l.9-.4c.3.2.6.4.9.5l.2 1c.1.3.3.5.6.5h1.8c.3 0 .5-.2.6-.5l.2-1c.3-.1.6-.3.9-.5l.9.4c.2.1.5 0 .7-.3l.9-1.6a.6.6 0 0 0-.1-.8l-.8-.6v-1l.8-.6a.6.6 0 0 0 .1-.8Z"
+            stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </header>
+
+    <!-- ── Status strip ─────────────────────────────────────────────── -->
+    <div class="rc-status" id="statusStrip" aria-live="polite" aria-atomic="true">
+      <span class="rc-status-dot" id="statusDot" aria-hidden="true"></span>
+      <span class="rc-status-title" id="statusTitle">No article detected</span>
+      <span class="rc-status-tags" id="statusTags"></span>
+    </div>
+
+    <!-- ── Settings panel (slide-in) ───────────────────────────────── -->
+    <section
+      class="rc-settings"
+      id="settingsPanel"
+      aria-hidden="true"
+      aria-label="Extension settings"
+    >
+      <div class="rc-settings-inner">
+
+        <!-- API key -->
+        <div class="rc-field rc-field--key">
+          <label class="rc-label" for="apiKeyInput">Anthropic API key</label>
+          <div class="rc-key-wrap">
+            <input
+              type="password"
+              class="rc-key-input"
+              id="apiKeyInput"
+              placeholder="sk-ant-api03-…"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button
+              type="button"
+              class="rc-key-toggle"
+              id="apiKeyToggle"
+              aria-label="Show key"
+              aria-pressed="false"
+            >
+              <!-- Eye icon -->
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5Z"
+                  stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+                <circle cx="8" cy="8" r="2"
+                  stroke="currentColor" stroke-width="1.4"/>
+              </svg>
+            </button>
+          </div>
+          <div class="rc-key-actions">
+            <button class="rc-btn rc-btn--apply rc-btn--sm" id="saveApiKeyBtn">Save key</button>
+            <a class="rc-key-link" href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">
+              Get a key →
+            </a>
+          </div>
+          <p class="rc-field-hint" id="apiKeyStatus" role="status" aria-live="polite"></p>
+        </div>
+
+        <hr class="rc-divider" />
+
+        <!-- Extraction strategy override (Q1) -->
+        <fieldset class="rc-field rc-field--group">
+          <legend class="rc-label">Extraction strategy</legend>
+          <div class="rc-radio-group" role="group">
+            <label class="rc-radio-label">
+              <input type="radio" name="extraction" value="readability" />
+              <span>Readability</span>
+              <em class="rc-radio-hint">article text, prose</em>
+            </label>
+            <label class="rc-radio-label">
+              <input type="radio" name="extraction" value="viewport" />
+              <span>Viewport</span>
+              <em class="rc-radio-hint">visible region only</em>
+            </label>
+            <label class="rc-radio-label">
+              <input type="radio" name="extraction" value="structured" />
+              <span>Structured</span>
+              <em class="rc-radio-hint">headings &amp; data</em>
+            </label>
+          </div>
+        </fieldset>
+
+        <!-- Behavior strategy override (Q2) -->
+        <fieldset class="rc-field rc-field--group">
+          <legend class="rc-label">Behavior strategy</legend>
+          <div class="rc-radio-group" role="group">
+            <label class="rc-radio-label">
+              <input type="radio" name="behavior" value="mitigate" />
+              <span>Mitigate</span>
+              <em class="rc-radio-hint">gently surface blind spots</em>
+            </label>
+            <label class="rc-radio-label">
+              <input type="radio" name="behavior" value="embrace" />
+              <span>Embrace</span>
+              <em class="rc-radio-hint">amplify your curiosity</em>
+            </label>
+            <label class="rc-radio-label">
+              <input type="radio" name="behavior" value="erase" />
+              <span>Erase</span>
+              <em class="rc-radio-hint">content only, no behaviour</em>
+            </label>
+          </div>
+        </fieldset>
+
+        <button class="rc-btn rc-btn--apply" id="saveStrategyBtn">Apply strategy</button>
+        <p class="rc-field-hint" id="strategyStatus" role="status" aria-live="polite"></p>
+
+        <!-- Behavior thresholds (display) -->
+        <div class="rc-thresholds">
+          <p class="rc-label">Behavior thresholds</p>
+          <dl class="rc-threshold-grid">
+            <dt>Deep reading</dt><dd>≥ 90 s active dwell</dd>
+            <dt>Skim reading</dt><dd>≤ 30 s  or  &gt; 300 px/s scroll</dd>
+            <dt>Dwell cap</dt><dd>300 s (prevents tab abandonment)</dd>
+          </dl>
+        </div>
+
+        <!-- API usage -->
+        <div class="rc-quota-section">
+          <p class="rc-label">API usage</p>
+          <div class="rc-quota-track">
+            <div class="rc-quota-fill" id="quotaFill"></div>
+          </div>
+          <p class="rc-quota-text" id="quotaText">—</p>
+        </div>
+
+      </div><!-- /.rc-settings-inner -->
+    </section>
+
+    <!-- ── Highlights library panel (slide-in) ──────────────────────── -->
+    <section
+      class="rc-highlights"
+      id="highlightsPanel"
+      aria-hidden="true"
+      aria-label="Saved highlights"
+    >
+      <div class="rc-highlights-inner">
+        <div class="rc-highlights-header">
+          <p class="rc-label">Saved highlights</p>
+          <button class="rc-btn rc-btn--ghost rc-btn--xs" id="clearHighlightsBtn">
+            Clear all
+          </button>
+        </div>
+        <!-- Highlight cards injected here by sidebar.js -->
+        <div class="rc-highlights-list" id="highlightsList"></div>
+        <p class="rc-highlights-empty" id="highlightsEmpty">
+          No highlights yet — star a passage to save it here.
+        </p>
+      </div>
+    </section>
+
+    <!-- ── "Discuss this" CTA ───────────────────────────────────────── -->
+    <div class="rc-discuss-cta" id="discussCta" hidden aria-live="polite">
+      <blockquote class="rc-discuss-preview" id="discussPreview"></blockquote>
+      <button class="rc-btn rc-btn--primary rc-btn--full" id="discussCtaBtn">
+        Discuss this
+      </button>
+    </div>
+
+    <!-- ── Fallback CTA (extraction failed) ─────────────────────────── -->
+    <div class="rc-fallback-cta" id="fallbackCta" hidden aria-live="polite">
+      <p class="rc-fallback-msg">
+        Couldn't read this page. Select text, right‑click, and choose
+        <em>"Discuss selection with Marginalia"</em>.
+      </p>
+    </div>
+
+    <!-- ── Chat scroll area ─────────────────────────────────────────── -->
+    <main class="rc-chat" id="chatArea" aria-label="Conversation" aria-live="polite">
+
+      <!-- Empty state — hidden once messages exist -->
+      <div class="rc-empty" id="emptyState">
+        <p class="rc-placeholder">
+          Navigate to an article and spend a moment reading.<br />
+          When <em>Discuss this</em> appears, click it —<br />
+          or start typing below.
+        </p>
+      </div>
+
+      <!-- Chat messages are injected here by sidebar.js -->
+
+    </main>
+
+    <!-- ── Input footer ─────────────────────────────────────────────── -->
+    <footer class="rc-input-footer">
+      <div class="rc-input-wrap">
+        <textarea
+          class="rc-textarea"
+          id="userInput"
+          placeholder="Ask about what you're reading…"
+          rows="2"
+          aria-label="Your message"
+          aria-describedby="inputHint"
+        ></textarea>
+        <button class="rc-btn rc-btn--send" id="sendBtn" aria-label="Send message">
+          <!-- Up-arrow icon -->
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M8 13V3M3 8l5-5 5 5"
+              stroke="currentColor" stroke-width="1.6"
+              stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="rc-footer-row">
+        <span class="rc-input-hint" id="inputHint">⌘↵ to send</span>
+      </div>
+    </footer>
+
+  </div><!-- /.rc-shell -->
+
+  <!-- Lib scripts loaded before sidebar.js -->
+  <script src="../lib/api.js"></script>
+  <script src="../lib/prompts.js"></script>
+  <script src="../lib/response-parser.js"></script>
+  <script src="sidebar.js"></script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.suo
+*.user
+
+# Cloudflare / Wrangler
+.wrangler/
+cloudflare-worker/.wrangler/
+cloudflare-worker/node_modules/
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Secrets — never commit API keys or signing keys
+.env
+.env.*
+*.secret
+*.pem        # Chrome extension private key — generated when packing via chrome://extensions
+
+# Chrome extension build artifacts
+*.crx        # packed extension
+*.zip        # store submission archive
+
+# Old / archived docs
+AI_Reading_Companion_README.md

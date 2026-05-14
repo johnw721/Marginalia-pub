@@ -1,0 +1,1239 @@
+/* sidebar.css — Marginalia sidebar
+   Single file, no framework. Dark mode default, warm amber palette. */
+
+/* ── Reset ────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Design tokens ───────────────────────────────────────────────── */
+:root {
+  /* Surfaces */
+  --color-bg:           #111110;
+  --color-surface:      #1a1a18;
+  --color-surface-alt:  #212120;
+  --color-surface-hi:   #272725;
+
+  /* Borders */
+  --color-border:       #2e2e2b;
+  --color-border-hi:    #3a3a36;
+
+  /* Text */
+  --color-text:         #e8e6df;
+  --color-text-muted:   #7a7870;
+  --color-text-faint:   #4a4a47;
+
+  /* Accent palette */
+  --color-accent:       #c8a96e;   /* warm amber — observation / primary */
+  --color-accent-dim:   rgba(200, 169, 110, 0.10);
+  --color-accent-hover: #d9bb87;
+  --color-insight:      #7eb8a4;   /* soft teal   — content insight      */
+  --color-question:     #9b8fc8;   /* muted violet — question            */
+  --color-error:        #c86e6e;   /* muted red    — errors              */
+  --color-success:      #7eb88a;   /* soft green   — success             */
+  --color-active:       #6eb87e;   /* bright green — active reading dot  */
+
+  /* Typography */
+  --font-sans:   system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif:  Georgia, "Times New Roman", serif;
+  --font-mono:   "SF Mono", "Fira Code", ui-monospace, monospace;
+
+  /* Spacing */
+  --gap:         16px;
+  --gap-sm:      10px;
+  --gap-xs:      6px;
+
+  /* Shape */
+  --radius:      6px;
+  --radius-sm:   4px;
+  --radius-pill: 999px;
+
+  /* Motion */
+  --transition:  150ms ease;
+  --slide-dur:   300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Base ────────────────────────────────────────────────────────── */
+html, body {
+  height: 100%;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Shell — flex column, fills the panel ───────────────────────── */
+.rc-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   HEADER
+════════════════════════════════════════════════════════════════════ */
+.rc-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px var(--gap);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+/* Wordmark monogram */
+.rc-wordmark {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  background: var(--color-accent-dim);
+  border: 1px solid rgba(200, 169, 110, 0.20);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--color-accent);
+  flex-shrink: 0;
+  user-select: none;
+}
+
+/* Title + badge stack */
+.rc-header-meta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.rc-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  line-height: 1;
+}
+
+.rc-strategy-badge {
+  font-size: 11px;
+  color: var(--color-accent);
+  letter-spacing: 0.02em;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Badge + mode select row */
+.rc-header-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* Mode override dropdown */
+.rc-mode-select {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-faint);
+  font-family: var(--font-sans);
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  padding: 1px 4px;
+  cursor: pointer;
+  outline: none;
+  /* suppress native arrow — keep it compact */
+  -webkit-appearance: none;
+  appearance: none;
+  transition: border-color var(--transition), color var(--transition);
+}
+
+.rc-mode-select:hover,
+.rc-mode-select:focus {
+  border-color: var(--color-border-hi);
+  color: var(--color-text-muted);
+}
+
+/* Highlight when a manual override is active */
+.rc-mode-select.is-override {
+  border-color: rgba(200, 169, 110, 0.40);
+  color: var(--color-accent);
+}
+
+/* Settings gear button */
+.rc-settings-btn {
+  background: none;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+  color: var(--color-text-faint);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition), background var(--transition);
+  flex-shrink: 0;
+}
+
+.rc-settings-btn:hover,
+.rc-settings-btn.is-active {
+  color: var(--color-accent);
+  background: var(--color-accent-dim);
+}
+
+.rc-settings-btn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   STATUS STRIP
+════════════════════════════════════════════════════════════════════ */
+.rc-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px var(--gap);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+  flex-shrink: 0;
+  min-height: 32px;
+  overflow: hidden;
+}
+
+/* Pulsing activity dot */
+.rc-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-text-faint);
+  flex-shrink: 0;
+  transition: background var(--transition);
+}
+
+.rc-status-dot.is-active {
+  background: var(--color-active);
+  animation: rc-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes rc-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}
+
+/* Article title */
+.rc-status-title {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Behavior/dwell tags */
+.rc-status-tags {
+  font-size: 10px;
+  color: var(--color-text-faint);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SETTINGS PANEL — slide-in (max-height animation)
+════════════════════════════════════════════════════════════════════ */
+.rc-settings {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    max-height var(--slide-dur),
+    opacity 200ms ease;
+  background: var(--color-surface);
+  border-bottom: 1px solid transparent;
+  flex-shrink: 0;
+}
+
+.rc-settings.is-open {
+  max-height: 680px;
+  opacity: 1;
+  border-bottom-color: var(--color-border);
+  transition:
+    max-height var(--slide-dur),
+    opacity 180ms ease 60ms;  /* opacity trails slightly behind */
+}
+
+.rc-settings-inner {
+  padding: var(--gap-sm) var(--gap) var(--gap);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
+/* Divider */
+.rc-settings-divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: 2px 0;
+}
+
+/* Field wrapper */
+.rc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rc-field--group {
+  border: none; /* remove fieldset default border */
+}
+
+/* Label / legend */
+.rc-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* API key input row */
+.rc-input-row {
+  display: flex;
+  gap: var(--gap-xs);
+}
+
+.rc-input {
+  flex: 1;
+  min-width: 0;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text);
+  outline: none;
+  transition: border-color var(--transition);
+}
+
+.rc-input::placeholder { color: var(--color-text-faint); }
+
+.rc-input:focus { border-color: var(--color-accent); }
+
+/* Field hint / status line */
+.rc-field-hint {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  min-height: 16px;
+}
+
+.rc-field-hint.is-success { color: var(--color-success); }
+.rc-field-hint.is-error   { color: var(--color-error);   }
+
+/* Radio group */
+.rc-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.rc-radio-label {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--color-text);
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition);
+}
+
+.rc-radio-label:hover {
+  background: var(--color-surface-hi);
+}
+
+.rc-radio-label input[type="radio"] {
+  accent-color: var(--color-accent);
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.rc-radio-hint {
+  font-size: 10px;
+  color: var(--color-text-faint);
+  font-style: normal;
+  margin-left: auto;
+}
+
+/* Thresholds display */
+.rc-thresholds {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rc-threshold-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 3px 10px;
+  font-size: 11px;
+}
+
+.rc-threshold-grid dt {
+  color: var(--color-text-muted);
+}
+
+.rc-threshold-grid dd {
+  color: var(--color-text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   "DISCUSS THIS" CTA
+════════════════════════════════════════════════════════════════════ */
+.rc-discuss-cta {
+  padding: var(--gap-sm) var(--gap);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+  flex-shrink: 0;
+}
+
+/* Passage preview — styled like a book marginal note */
+.rc-discuss-preview {
+  font-family: var(--font-serif);
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--color-text-muted);
+  border-left: 2px solid var(--color-accent);
+  padding-left: 10px;
+  font-style: italic;
+  margin: 0;
+  /* Clamp to 3 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   CHAT SCROLL AREA
+════════════════════════════════════════════════════════════════════ */
+.rc-chat {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--gap);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  /* Thin scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+
+.rc-chat::-webkit-scrollbar { width: 3px; }
+.rc-chat::-webkit-scrollbar-track { background: transparent; }
+.rc-chat::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 2px; }
+
+/* ── Empty state ─────────────────────────────────────────────────── */
+.rc-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rc-placeholder {
+  font-family: var(--font-serif);
+  font-size: 13px;
+  color: var(--color-text-faint);
+  line-height: 1.9;
+  text-align: center;
+  max-width: 220px;
+}
+
+.rc-placeholder em {
+  color: var(--color-accent);
+  font-style: italic;
+}
+
+/* ── Message base ────────────────────────────────────────────────── */
+.rc-msg {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── AI message — marginalia style ──────────────────────────────── */
+/*
+   Each part (observation / insight / question) has its own left-rule
+   in its section's accent colour.  No card background — the message
+   sits flush on the dark canvas like a marginal annotation.
+*/
+.rc-msg--ai {
+  gap: 0;
+}
+
+.rc-msg-part {
+  padding: 8px 0 8px 14px;
+  border-left: 2px solid transparent;
+  position: relative;
+}
+
+/* Section colour rules */
+.rc-msg-part--observation { border-left-color: var(--color-accent);   }
+.rc-msg-part--insight     { border-left-color: var(--color-insight);  }
+.rc-msg-part--question    { border-left-color: var(--color-question); }
+
+/* Thin gap seam between parts */
+.rc-msg-part + .rc-msg-part {
+  margin-top: 1px;
+}
+
+/* Section label */
+.rc-msg-label {
+  display: block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.rc-msg-part--observation .rc-msg-label { color: var(--color-accent);   }
+.rc-msg-part--insight     .rc-msg-label { color: var(--color-insight);  }
+.rc-msg-part--question    .rc-msg-label { color: var(--color-question); }
+
+/* Section body — serif marginalia text */
+.rc-msg--ai .rc-msg-text {
+  font-family: var(--font-serif);
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--color-text);
+  margin: 0;
+}
+
+/* ── User message — bubble ───────────────────────────────────────── */
+.rc-msg--user {
+  align-items: flex-end;
+}
+
+.rc-msg--user .rc-msg-text {
+  background: var(--color-surface-hi);
+  border: 1px solid var(--color-border-hi);
+  border-radius: var(--radius) var(--radius) 2px var(--radius);
+  padding: 8px 12px;
+  max-width: 88%;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--color-text);
+}
+
+/* ── Loading message ─────────────────────────────────────────────── */
+.rc-msg--loading {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0 6px 14px;
+  border-left: 2px solid var(--color-border);
+}
+
+.rc-loading-text {
+  font-family: var(--font-serif);
+  font-size: 12px;
+  font-style: italic;
+  color: var(--color-text-faint);
+}
+
+/* ── Error message ───────────────────────────────────────────────── */
+.rc-msg--error {
+  padding: 6px 0 6px 14px;
+  border-left: 2px solid var(--color-error);
+}
+
+.rc-msg--error .rc-msg-text {
+  font-family: var(--font-serif);
+  font-size: 13px;
+  line-height: 1.75;
+  color: var(--color-error);
+  font-style: italic;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   INPUT FOOTER
+════════════════════════════════════════════════════════════════════ */
+.rc-input-footer {
+  padding: var(--gap-sm) var(--gap);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.rc-input-wrap {
+  display: flex;
+  gap: var(--gap-xs);
+  align-items: flex-end;
+}
+
+/* Textarea */
+.rc-textarea {
+  flex: 1;
+  min-width: 0;
+  resize: none;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 7px 10px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-text);
+  outline: none;
+  transition: border-color var(--transition);
+  /* Max ~5 lines before scrolling */
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.rc-textarea::placeholder { color: var(--color-text-faint); }
+
+.rc-textarea:focus { border-color: var(--color-accent); }
+
+.rc-textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Keyboard hint */
+.rc-input-hint {
+  font-size: 10px;
+  color: var(--color-text-faint);
+  letter-spacing: 0.02em;
+  user-select: none;
+  text-align: right;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   BUTTONS
+════════════════════════════════════════════════════════════════════ */
+.rc-btn {
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  transition:
+    background var(--transition),
+    color var(--transition),
+    opacity var(--transition);
+  white-space: nowrap;
+}
+
+.rc-btn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.rc-btn:disabled {
+  opacity: 0.40;
+  cursor: not-allowed;
+}
+
+/* Primary — "Discuss this" CTA */
+.rc-btn--primary {
+  background: var(--color-accent);
+  color: #111110;
+  padding: 8px 18px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.rc-btn--primary:hover:not(:disabled) { background: var(--color-accent-hover); }
+
+/* Full-width variant */
+.rc-btn--full { width: 100%; }
+
+/* Save button (API key, settings) */
+.rc-btn--save {
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  padding: 6px 12px;
+}
+
+.rc-btn--save:hover:not(:disabled) {
+  background: var(--color-border);
+  color: var(--color-text);
+}
+
+/* Apply strategy button */
+.rc-btn--apply {
+  background: var(--color-surface-alt);
+  color: var(--color-accent);
+  border: 1px solid rgba(200, 169, 110, 0.25);
+  padding: 7px 14px;
+  width: 100%;
+  font-size: 11px;
+}
+
+.rc-btn--apply:hover:not(:disabled) {
+  background: var(--color-accent-dim);
+  border-color: rgba(200, 169, 110, 0.40);
+}
+
+/* Send button (↑ arrow) */
+.rc-btn--send {
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  border-radius: var(--radius);
+  transition: background var(--transition), color var(--transition), border-color var(--transition);
+}
+
+.rc-btn--send:hover:not(:disabled) {
+  background: var(--color-accent-dim);
+  color: var(--color-accent);
+  border-color: rgba(200, 169, 110, 0.35);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FALLBACK CTA (extraction failed)
+════════════════════════════════════════════════════════════════════ */
+.rc-fallback-cta {
+  padding: var(--gap-sm) var(--gap);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+  flex-shrink: 0;
+}
+
+.rc-fallback-msg {
+  font-family: var(--font-serif);
+  font-size: 12px;
+  line-height: 1.75;
+  color: var(--color-text-muted);
+  font-style: italic;
+  border-left: 2px solid var(--color-text-faint);
+  padding-left: 10px;
+  margin: 0;
+}
+
+/* Highlight the menu item name */
+.rc-fallback-msg em {
+  color: var(--color-accent);
+  font-style: normal;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SPINNER (shared)
+════════════════════════════════════════════════════════════════════ */
+.rc-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--color-border);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: rc-spin 0.75s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes rc-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   MESSAGE LABEL ROW — label + ⭐ highlight button
+════════════════════════════════════════════════════════════════════ */
+.rc-msg-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+/* ⭐ Highlight save button — hidden until the part is hovered */
+.rc-highlight-btn {
+  background: none;
+  border: none;
+  padding: 0 2px;
+  cursor: pointer;
+  font-size: 11px;
+  line-height: 1;
+  color: var(--color-text-faint);
+  opacity: 0;
+  transition: opacity var(--transition), color var(--transition);
+  flex-shrink: 0;
+}
+
+.rc-msg-part:hover .rc-highlight-btn {
+  opacity: 1;
+}
+
+.rc-highlight-btn:hover,
+.rc-highlight-btn.is-saved {
+  color: var(--color-accent);
+  opacity: 1;
+}
+
+.rc-highlight-btn:focus-visible {
+  outline: 1px solid var(--color-accent);
+  border-radius: 2px;
+  opacity: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   HIGHLIGHTS LIBRARY PANEL
+════════════════════════════════════════════════════════════════════ */
+
+/* Reuse the settings panel slide-in pattern */
+.rc-highlights {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    max-height var(--slide-dur),
+    opacity 200ms ease;
+  background: var(--color-surface);
+  border-bottom: 1px solid transparent;
+  flex-shrink: 0;
+}
+
+.rc-highlights.is-open {
+  max-height: 400px;
+  opacity: 1;
+  border-bottom-color: var(--color-border);
+  transition:
+    max-height var(--slide-dur),
+    opacity 180ms ease 60ms;
+}
+
+.rc-highlights-inner {
+  padding: var(--gap-sm) var(--gap) var(--gap);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
+/* Header row: label + "Clear all" button */
+.rc-highlights-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Scrollable list of cards */
+.rc-highlights-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+
+.rc-highlights-list::-webkit-scrollbar { width: 3px; }
+.rc-highlights-list::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 2px; }
+
+/* Empty state */
+.rc-highlights-empty {
+  font-family: var(--font-serif);
+  font-size: 12px;
+  font-style: italic;
+  color: var(--color-text-faint);
+  text-align: center;
+  padding: 12px 0;
+}
+
+/* ── Highlight card ──────────────────────────────────────────────── */
+.rc-highlight-card {
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.rc-highlight-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Colored section badge */
+.rc-highlight-section {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+}
+
+.rc-highlight-section--observation { color: var(--color-accent);   }
+.rc-highlight-section--insight     { color: var(--color-insight);  }
+.rc-highlight-section--question    { color: var(--color-question); }
+
+.rc-highlight-del {
+  background: none;
+  border: none;
+  padding: 0 2px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--color-text-faint);
+  transition: color var(--transition);
+}
+
+.rc-highlight-del:hover { color: var(--color-error); }
+
+.rc-highlight-text {
+  font-family: var(--font-serif);
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.rc-highlight-meta {
+  font-size: 10px;
+  color: var(--color-text-faint);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Ghost button (used for Clear all + small actions) ───────────── */
+.rc-btn--ghost {
+  background: none;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-faint);
+  padding: 3px 8px;
+  font-size: 10px;
+  border-radius: var(--radius-sm);
+  transition: border-color var(--transition), color var(--transition);
+}
+
+.rc-btn--ghost:hover:not(:disabled) {
+  border-color: var(--color-border-hi);
+  color: var(--color-text-muted);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   PROXY QUOTA (settings panel)
+════════════════════════════════════════════════════════════════════ */
+.rc-quota-section {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+/* Progress track */
+.rc-quota-track {
+  height: 3px;
+  background: var(--color-surface-hi);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.rc-quota-fill {
+  height: 100%;
+  background: var(--color-accent);
+  border-radius: var(--radius-pill);
+  width: 0%;
+  transition: width 400ms ease, background 300ms ease;
+}
+
+.rc-quota-fill.is-warning {
+  background: var(--color-error);
+}
+
+.rc-quota-text {
+  font-size: 11px;
+  color: var(--color-text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FOOTER ROW (hint row)
+════════════════════════════════════════════════════════════════════ */
+.rc-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   WELCOME TOUR CARD
+════════════════════════════════════════════════════════════════════ */
+.rc-tour {
+  background: var(--color-surface-alt);
+  border: 1px solid rgba(200, 169, 110, 0.25);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 250ms ease, transform 250ms ease;
+  /* Ensure it stays in the chat flow */
+  flex-shrink: 0;
+}
+
+.rc-tour.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.rc-tour.is-dismissing {
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+
+.rc-tour-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.rc-tour-body {
+  font-family: var(--font-serif);
+  font-size: 12px;
+  line-height: 1.75;
+  color: var(--color-text-muted);
+}
+
+.rc-tour-body em {
+  color: var(--color-accent);
+  font-style: italic;
+}
+
+.rc-tour-btn {
+  align-self: flex-end;
+  background: none;
+  border: 1px solid rgba(200, 169, 110, 0.30);
+  color: var(--color-accent);
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.rc-tour-btn:hover {
+  background: var(--color-accent-dim);
+  border-color: rgba(200, 169, 110, 0.50);
+}
+
+/* ── API key field (settings panel) ─────────────────────────────── */
+
+.rc-field--key {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rc-key-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 0 6px 0 10px;
+  transition: border-color var(--transition);
+}
+
+.rc-key-wrap:focus-within {
+  border-color: var(--color-accent);
+}
+
+.rc-key-input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--color-text);
+  font-size: 11.5px;
+  font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+  letter-spacing: 0.02em;
+  padding: 7px 0;
+}
+
+.rc-key-input::placeholder {
+  color: var(--color-text-faint);
+  font-family: inherit;
+  letter-spacing: 0;
+}
+
+.rc-key-toggle {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+  color: var(--color-text-faint);
+  border-radius: 4px;
+  line-height: 0;
+  transition: color var(--transition);
+}
+
+.rc-key-toggle:hover {
+  color: var(--color-text-muted);
+}
+
+.rc-key-toggle:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.rc-key-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rc-btn--sm {
+  padding: 5px 12px;
+  font-size: 11.5px;
+}
+
+.rc-key-link {
+  font-size: 11.5px;
+  color: var(--color-accent);
+  text-decoration: none;
+  opacity: 0.85;
+  transition: opacity var(--transition);
+}
+
+.rc-key-link:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.rc-divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 4px 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   PERSONA INFO BUTTON (ⓘ) + TOOLTIP CARD
+   The tooltip is a max-height slide-in that lives in the document
+   flow (inside .rc-header-meta), so it pushes the header down
+   slightly rather than overlapping the status strip.
+════════════════════════════════════════════════════════════════════ */
+.rc-persona-info {
+  background: none;
+  border: none;
+  padding: 0 2px;
+  cursor: pointer;
+  font-size: 11px;
+  line-height: 1;
+  color: var(--color-text-faint);
+  flex-shrink: 0;
+  opacity: 0.65;
+  font-family: inherit;
+  transition: color var(--transition), opacity var(--transition);
+  /* Vertically align with the badge text */
+  display: inline-flex;
+  align-items: center;
+}
+
+.rc-persona-info:hover,
+.rc-persona-info.is-active {
+  color: var(--color-accent);
+  opacity: 1;
+}
+
+.rc-persona-info:focus-visible {
+  outline: 1px solid var(--color-accent);
+  border-radius: 2px;
+  opacity: 1;
+}
+
+/* Tooltip wrapper — collapses to zero height when closed */
+.rc-persona-tooltip {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    max-height var(--slide-dur),
+    opacity 200ms ease;
+}
+
+.rc-persona-tooltip.is-open {
+  max-height: 110px;
+  opacity: 1;
+  transition:
+    max-height var(--slide-dur),
+    opacity 180ms ease 60ms;
+}
+
+/* Inner card that carries the visual styling */
+.rc-persona-tooltip-inner {
+  background: var(--color-surface-alt);
+  border: 1px solid rgba(200, 169, 110, 0.22);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  margin-top: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Persona name — "THE ANALYST" caps label */
+.rc-persona-name {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  line-height: 1;
+}
+
+/* One-line description */
+.rc-persona-desc {
+  font-family: var(--font-serif);
+  font-size: 11.5px;
+  line-height: 1.65;
+  color: var(--color-text-muted);
+  font-style: italic;
+  margin: 0;
+}
