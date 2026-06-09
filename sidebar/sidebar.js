@@ -2,15 +2,13 @@
 //
 // Responsibilities:
 //   - Header: strategy badge, mode dropdown, copy-conversation button,
-//             highlights library toggle, settings toggle
+//             settings toggle
 //   - Status strip: pulsing dot, article title, dwell time, behavior tag
 //   - Settings panel (slide-in): strategy overrides, threshold display,
 //             proxy quota bar
-//   - Highlights library panel (slide-in): saved passages with per-item delete
 //   - "Discuss this" CTA: appears when fresh unread context exists, shows preview
 //   - Chat area: within-session message history
 //       • AI messages — 3-part marginalia (observation / insight / question)
-//                       each part has a ⭐ save-to-highlights button on hover
 //       • User messages — right-aligned plain bubble
 //       • Loading indicator — inline spinner
 //       • Error messages — inline, styled in red
@@ -39,8 +37,6 @@
   let fallbackCta;
   let chatArea, emptyState;
   let userInput, sendBtn;
-  // Feature: highlights library
-  let highlightsToggle, highlightsPanel, highlightsList, highlightsEmpty, clearHighlightsBtn;
   // Feature: copy conversation
   let copyConvBtn;
   // Feature: quota display
@@ -67,11 +63,8 @@
   let _conversationLog = [];      // { role, text } | { role, observation, insight, question }
   let _hasSeenTour     = false;   // one-time welcome tour flag
 
-  // Session depth tracking — records {persona, turns} per conversation to
-  // chrome.storage.local ("rcSessionStats") so prompt quality can be assessed
-  // over time by looking at which personas generate the deepest conversations.
-  let _sessionTurnCount = 0;      // increments on each successful AI reply
-  let _sessionPersona   = "";     // "readability×mitigate" etc., set on Discuss
+  // Turn counter — used to rotate loading phrases across turns.
+  let _sessionTurnCount = 0;
 
   // Auto-prompt (continuous paced prompting) state ──────────────────────────
   // After an initial exchange, auto-trigger a follow-up observation when a new
@@ -98,8 +91,6 @@
 
   const POLL_INTERVAL_MS      = 15000;  // check for new context every 15 s
   const API_HISTORY_CAP       = 8;      // keep last 4 exchanges (8 messages)
-  const HIGHLIGHTS_KEY        = "rcHighlights";
-  const HIGHLIGHTS_CAP        = 50;     // max saved highlights
   const AUTO_PROMPT_MIN_MS    = 120000; // min 2 min between auto-prompts
   const AUTO_PROMPT_DEBOUNCE  = 30000;  // don't auto-prompt if user typed within 30 s
 
@@ -276,11 +267,6 @@
   // ─────────────────────────────────────────────────────────────────
 
   function _toggleSettings() {
-    // Close highlights panel if it's open.
-    if (highlightsPanel && highlightsPanel.classList.contains("is-open")) {
-      _closeHighlightsPanel();
-    }
-
     const isOpen = settingsPanel.classList.toggle("is-open");
     settingsToggle.classList.toggle("is-active", isOpen);
     settingsToggle.setAttribute("aria-expanded", String(isOpen));
@@ -456,7 +442,6 @@
 
       _lastAiMessageTime = Date.now();
       _sessionTurnCount++;
-      _recordSessionDepth();
 
       loadingEl.remove();
       _appendAiMessage(reply);
@@ -536,10 +521,9 @@
       return;
     }
 
-    // Fresh conversation — reset the log and session tracking.
+    // Fresh conversation — reset the log and turn counter.
     _conversationLog  = [];
     _sessionTurnCount = 0;
-    _sessionPersona   = _config.extractionStrategy + "×" + _config.behaviorStrategy;
 
     _setLoading(true);
 
@@ -566,7 +550,6 @@
       _trimHistory();
 
       _sessionTurnCount = 1; // first successful AI turn
-      _recordSessionDepth();
 
       loadingEl.remove();
       _appendAiMessage(text);
@@ -624,7 +607,6 @@
       _trimHistory();
 
       _sessionTurnCount++;
-      _recordSessionDepth();
 
       loadingEl.remove();
       _appendAiMessage(reply);
@@ -681,7 +663,7 @@
       const div = document.createElement("div");
       div.className = "rc-msg-part rc-msg-part--" + s.key;
 
-      // Label row: section label + ⭐ highlight button
+      // Label row: section label
       const labelRow = document.createElement("div");
       labelRow.className = "rc-msg-label-row";
 
@@ -689,23 +671,7 @@
       labelSpan.className = "rc-msg-label";
       labelSpan.textContent = s.label;
 
-      const hlBtn = document.createElement("button");
-      hlBtn.className = "rc-highlight-btn";
-      hlBtn.title     = "Save to highlights";
-      hlBtn.setAttribute("aria-label", "Save " + s.label.toLowerCase() + " to highlights");
-      hlBtn.textContent = "★";
-      hlBtn.addEventListener("click", function () {
-        _saveHighlight(s.text, s.key);
-        hlBtn.classList.add("is-saved");
-        hlBtn.title = "Saved!";
-        setTimeout(function () {
-          hlBtn.classList.remove("is-saved");
-          hlBtn.title = "Save to highlights";
-        }, 1500);
-      });
-
       labelRow.appendChild(labelSpan);
-      labelRow.appendChild(hlBtn);
 
       const p = document.createElement("p");
       p.className = "rc-msg-text";
@@ -941,194 +907,6 @@
   }
 
   // ─────────────────────────────────────────────────────────────────
-  // Feedback telemetry — stored locally, never leaves the browser
-  // ─────────────────────────────────────────────────────────────────
-
-  /**
-   * Records per-persona session depth to chrome.storage.local ("rcSessionStats").
-   *
-   * Stored shape (array of objects, one per unique persona):
-   *   { persona, sessions, totalTurns, maxTurns }
-   *
-   * "sessions" counts how many times a conversation reached at least one AI
-   * reply with this persona.  "totalTurns / sessions" gives the mean depth.
-   * Inspect via: chrome.storage.local.get("rcSessionStats", console.log)
-   */
-  function _recordSessionDepth() {
-    if (!_sessionPersona) return;
-    const persona = _sessionPersona;
-    const turns   = _sessionTurnCount;
-
-    chrome.storage.local.get("rcSessionStats", function (result) {
-      const stats   = Array.isArray(result.rcSessionStats) ? result.rcSessionStats : [];
-      const entry   = stats.find(function (s) { return s.persona === persona; });
-
-      if (entry) {
-        entry.sessions++;
-        entry.totalTurns += turns;
-        entry.maxTurns    = Math.max(entry.maxTurns || 0, turns);
-      } else {
-        stats.push({ persona: persona, sessions: 1, totalTurns: turns, maxTurns: turns });
-      }
-
-      chrome.storage.local.set({ rcSessionStats: stats });
-    });
-  }
-
-  // ─────────────────────────────────────────────────────────────────
-  // Highlights library
-  // ─────────────────────────────────────────────────────────────────
-
-  /**
-   * Saves a text passage to the highlights library in chrome.storage.local.
-   *
-   * Also updates the "rcHighlightStats" aggregate ({ observation, insight,
-   * question } counts) so you can see which section type users find most
-   * worth keeping.  Inspect via:
-   *   chrome.storage.local.get("rcHighlightStats", console.log)
-   *
-   * @param {string} text    The highlighted passage.
-   * @param {string} section "observation" | "insight" | "question"
-   */
-  function _saveHighlight(text, section) {
-    const latest    = _latestChunks.length > 0 ? _latestChunks[_latestChunks.length - 1] : null;
-    const pageTitle = (latest && latest.title) || "Untitled";
-    const pageUrl   = (latest && latest.url)   || "";
-
-    const highlight = {
-      id:        "hl_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
-      text:      text,
-      section:   section,
-      pageTitle: pageTitle,
-      pageUrl:   pageUrl,
-      savedAt:   Date.now(),
-    };
-
-    chrome.storage.local.get([HIGHLIGHTS_KEY, "rcHighlightStats"], function (result) {
-      // ── Save to highlights library ──────────────────────────────────────────
-      let all = Array.isArray(result[HIGHLIGHTS_KEY]) ? result[HIGHLIGHTS_KEY] : [];
-      // Cap at HIGHLIGHTS_CAP — evict oldest when full.
-      all = all.slice(-(HIGHLIGHTS_CAP - 1));
-      all.push(highlight);
-
-      // ── Update per-section aggregate stats ─────────────────────────────────
-      // Tracks how many times each section type (observation / insight / question)
-      // has been saved.  Useful for understanding which part of the three-part
-      // structure users find most valuable.
-      const stats = result.rcHighlightStats ||
-        { observation: 0, insight: 0, question: 0 };
-      if (typeof stats[section] === "number") {
-        stats[section]++;
-      }
-
-      chrome.storage.local.set({ [HIGHLIGHTS_KEY]: all, rcHighlightStats: stats }, function () {
-        // Re-render if the panel is open so the new card appears immediately.
-        if (highlightsPanel && highlightsPanel.classList.contains("is-open")) {
-          _renderHighlights(all);
-        }
-      });
-    });
-  }
-
-  function _loadAndRenderHighlights() {
-    chrome.storage.local.get(HIGHLIGHTS_KEY, function (result) {
-      const all = Array.isArray(result[HIGHLIGHTS_KEY]) ? result[HIGHLIGHTS_KEY] : [];
-      _renderHighlights(all);
-    });
-  }
-
-  function _renderHighlights(highlights) {
-    highlightsList.innerHTML = "";
-
-    if (!highlights || highlights.length === 0) {
-      highlightsEmpty.hidden = false;
-      return;
-    }
-    highlightsEmpty.hidden = true;
-
-    // Render newest first.
-    highlights.slice().reverse().forEach(function (hl) {
-      const card = document.createElement("div");
-      card.className = "rc-highlight-card";
-
-      const header = document.createElement("div");
-      header.className = "rc-highlight-card-header";
-
-      const sectionBadge = document.createElement("span");
-      sectionBadge.className =
-        "rc-highlight-section rc-highlight-section--" + (hl.section || "observation");
-      sectionBadge.textContent = (hl.section || "note").toUpperCase();
-
-      const delBtn = document.createElement("button");
-      delBtn.className = "rc-highlight-del";
-      delBtn.setAttribute("aria-label", "Remove highlight");
-      delBtn.textContent = "×";
-      delBtn.addEventListener("click", function () { _deleteHighlight(hl.id); });
-
-      header.appendChild(sectionBadge);
-      header.appendChild(delBtn);
-
-      const textP = document.createElement("p");
-      textP.className = "rc-highlight-text";
-      textP.textContent = hl.text.length > 200 ? hl.text.slice(0, 200) + "…" : hl.text;
-
-      const metaP = document.createElement("p");
-      metaP.className = "rc-highlight-meta";
-      const dateStr = new Date(hl.savedAt).toLocaleDateString("en-US", {
-        month: "short", day: "numeric",
-      });
-      metaP.textContent = (hl.pageTitle || "Untitled") + " · " + dateStr;
-
-      card.appendChild(header);
-      card.appendChild(textP);
-      card.appendChild(metaP);
-      highlightsList.appendChild(card);
-    });
-  }
-
-  function _deleteHighlight(id) {
-    chrome.storage.local.get(HIGHLIGHTS_KEY, function (result) {
-      const all      = Array.isArray(result[HIGHLIGHTS_KEY]) ? result[HIGHLIGHTS_KEY] : [];
-      const filtered = all.filter(function (hl) { return hl.id !== id; });
-      chrome.storage.local.set({ [HIGHLIGHTS_KEY]: filtered }, function () {
-        _renderHighlights(filtered);
-      });
-    });
-  }
-
-  function _clearHighlights() {
-    chrome.storage.local.set({ [HIGHLIGHTS_KEY]: [] }, function () {
-      _renderHighlights([]);
-    });
-  }
-
-  // ── Highlights panel open / close ────────────────────────────────
-
-  function _toggleHighlights() {
-    // Close settings panel if it's open.
-    if (settingsPanel.classList.contains("is-open")) {
-      settingsPanel.classList.remove("is-open");
-      settingsToggle.classList.remove("is-active");
-      settingsToggle.setAttribute("aria-expanded", "false");
-      settingsPanel.setAttribute("aria-hidden", "true");
-    }
-
-    const isOpen = highlightsPanel.classList.toggle("is-open");
-    highlightsToggle.classList.toggle("is-active", isOpen);
-    highlightsToggle.setAttribute("aria-expanded", String(isOpen));
-    highlightsPanel.setAttribute("aria-hidden", String(!isOpen));
-
-    if (isOpen) _loadAndRenderHighlights();
-  }
-
-  function _closeHighlightsPanel() {
-    highlightsPanel.classList.remove("is-open");
-    highlightsToggle.classList.remove("is-active");
-    highlightsToggle.setAttribute("aria-expanded", "false");
-    highlightsPanel.setAttribute("aria-hidden", "true");
-  }
-
-  // ─────────────────────────────────────────────────────────────────
   // Welcome tour — shown once on first "Discuss this"
   // ─────────────────────────────────────────────────────────────────
 
@@ -1356,12 +1134,6 @@
     emptyState       = document.getElementById("emptyState");
     userInput        = document.getElementById("userInput");
     sendBtn          = document.getElementById("sendBtn");
-    // Feature: highlights
-    highlightsToggle   = document.getElementById("highlightsToggle");
-    highlightsPanel    = document.getElementById("highlightsPanel");
-    highlightsList     = document.getElementById("highlightsList");
-    highlightsEmpty    = document.getElementById("highlightsEmpty");
-    clearHighlightsBtn = document.getElementById("clearHighlightsBtn");
     // Feature: copy conversation
     copyConvBtn = document.getElementById("copyConvBtn");
     // Feature: quota
@@ -1383,8 +1155,6 @@
     apiKeyInput.addEventListener("keydown", function (e) {
       if (e.key === "Enter") { e.preventDefault(); _saveApiKey(); }
     });
-    highlightsToggle.addEventListener("click", _toggleHighlights);
-    clearHighlightsBtn.addEventListener("click", _clearHighlights);
     saveStrategyBtn.addEventListener("click", _saveStrategy);
     discussCtaBtn.addEventListener("click", _handleDiscussCta);
     copyConvBtn.addEventListener("click", _exportConversation);
@@ -1410,13 +1180,6 @@
         !settingsToggle.contains(e.target)
       ) {
         _toggleSettings();
-      }
-      if (
-        highlightsPanel.classList.contains("is-open") &&
-        !highlightsPanel.contains(e.target) &&
-        !highlightsToggle.contains(e.target)
-      ) {
-        _closeHighlightsPanel();
       }
       if (
         personaTooltip.classList.contains("is-open") &&

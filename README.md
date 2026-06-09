@@ -73,11 +73,6 @@ Two quality rules are woven into every prompt to guard against the most common f
 - `rcHighlightStats` — counts how many times each section (observation / insight / question) has been starred. Reveals which part of the three-part structure users find most worth keeping.
 - `rcSessionStats` — records `{ persona, sessions, totalTurns, maxTurns }` per persona. Mean turn depth (`totalTurns / sessions`) is the clearest signal for comparing which of the 9 personas generates the deepest engagement. Auto-prompted turns count toward `totalTurns`, so sessions with heavy continuous prompting will naturally register deeper depth scores.
 
-Inspect either key live:
-```js
-chrome.storage.local.get(["rcHighlightStats", "rcSessionStats"], console.log)
-```
-
 ---
 
 ## Testing

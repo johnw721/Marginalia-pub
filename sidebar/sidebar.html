@@ -57,22 +57,6 @@
         </svg>
       </button>
 
-      <!-- Highlights library button -->
-      <button
-        class="rc-settings-btn"
-        id="highlightsToggle"
-        title="Saved highlights"
-        aria-label="Saved highlights"
-        aria-expanded="false"
-        aria-controls="highlightsPanel"
-      >
-        <!-- Bookmark icon -->
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <path d="M4 2.5h8v11l-4-2.8-4 2.8V2.5Z"
-            stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
-        </svg>
-      </button>
-
       <button
         class="rc-settings-btn"
         id="settingsToggle"
@@ -213,28 +197,6 @@
         </div>
 
       </div><!-- /.rc-settings-inner -->
-    </section>
-
-    <!-- ── Highlights library panel (slide-in) ──────────────────────── -->
-    <section
-      class="rc-highlights"
-      id="highlightsPanel"
-      aria-hidden="true"
-      aria-label="Saved highlights"
-    >
-      <div class="rc-highlights-inner">
-        <div class="rc-highlights-header">
-          <p class="rc-label">Saved highlights</p>
-          <button class="rc-btn rc-btn--ghost rc-btn--xs" id="clearHighlightsBtn">
-            Clear all
-          </button>
-        </div>
-        <!-- Highlight cards injected here by sidebar.js -->
-        <div class="rc-highlights-list" id="highlightsList"></div>
-        <p class="rc-highlights-empty" id="highlightsEmpty">
-          No highlights yet — star a passage to save it here.
-        </p>
-      </div>
     </section>
 
     <!-- ── "Discuss this" CTA ───────────────────────────────────────── -->
